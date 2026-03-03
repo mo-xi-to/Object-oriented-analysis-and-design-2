@@ -25,11 +25,18 @@
 
             <Border Grid.Column="0" Background="#1A1A1A" BorderBrush="#333" BorderThickness="0,0,1,0">
                 <StackPanel Margin="15">
-                    <Button Content="ИМПОРТ ФОТО" Click="AddImage_Click" Height="35" Background="#007ACC" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
+                    <Button Content="ИМПОРТ ФОТО" Click="addImageClick" Height="35" Background="#007ACC" Foreground="White" BorderThickness="0" FontWeight="Bold"/>
+                    
                     <TextBlock Text="ПРЕСЕТЫ" Margin="0,30,0,10" Foreground="#666" FontSize="10" FontWeight="Bold"/>
-                    <Button Content="Копировать настройки" Click="CopyStyle_Click" Margin="0,5" Height="32" Background="#333" Foreground="#CCC"/>
-                    <Button Content="Вставить настройки" Click="PasteStyle_Click" Margin="0,5" Height="32" Background="#333" Foreground="#CCC"/>
+                    
+                    <CheckBox x:Name="UsePatternToggle" Content="Использовать Прототип" IsChecked="True" Foreground="#007ACC" Margin="0,5,0,10" FontSize="11" Cursor="Hand"/>
+
+                    <Button Content="Копировать настройки" Click="copyStyleClick" Margin="0,5" Height="32" Background="#333" Foreground="#CCC"/>
+                    <Button Content="Вставить настройки" Click="pasteStyleClick" Margin="0,5" Height="32" Background="#333" Foreground="#CCC"/>
                     <TextBlock x:Name="StatusText" Foreground="#007ACC" Margin="0,20" TextWrapping="Wrap" FontSize="11"/>
+
+                    <Separator Background="#333" Margin="0,20,0,10"/>
+                    <Button Content="СОХРАНИТЬ ФОТО" Click="savePhotoClick" Height="40" Background="#28a745" Foreground="White" BorderThickness="0" FontWeight="Bold" Cursor="Hand"/>
                 </StackPanel>
             </Border>
 
@@ -38,21 +45,21 @@
                     <Grid x:Name="ActivePhotoContainer" DataContext="{Binding SelectedItem, ElementName=ThumbnailList}">
                         
                         <Grid.Effect>
-                            <BlurEffect Radius="{Binding Settings.BlurRadius}"/>
+                            <BlurEffect Radius="{Binding settings.blurRadius}"/>
                         </Grid.Effect>
 
-                        <Image Source="{Binding GrayscaleSource}" 
-                            Visibility="{Binding Settings.IsBW, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <Image Source="{Binding grayscaleSource}" 
+                            Visibility="{Binding settings.isBW, Converter={StaticResource BoolToVisibilityConverter}}"/>
                         
-                        <Image Source="{Binding ImageSource}" 
-                            Visibility="{Binding Settings.IsBW, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='invert'}"/>
+                        <Image Source="{Binding imageSource}" 
+                            Visibility="{Binding settings.isBW, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='invert'}"/>
                         
-                        <Rectangle Fill="White" Opacity="{Binding Settings.AbsExposure}" IsHitTestVisible="False">
+                        <Rectangle Fill="White" Opacity="{Binding settings.absExposure}" IsHitTestVisible="False">
                             <Rectangle.Style>
                                 <Style TargetType="Rectangle">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Settings.Exposure, Converter={StaticResource NegativeConverter}, ConverterParameter='invert'}" Value="False">
+                                        <DataTrigger Binding="{Binding settings.exposure, Converter={StaticResource NegativeConverter}, ConverterParameter='invert'}" Value="False">
                                             <Setter Property="Visibility" Value="Visible"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -60,12 +67,12 @@
                             </Rectangle.Style>
                         </Rectangle>
                         
-                        <Rectangle Fill="Black" Opacity="{Binding Settings.AbsBrightness}" IsHitTestVisible="False">
+                        <Rectangle Fill="Black" Opacity="{Binding settings.absBrightness}" IsHitTestVisible="False">
                             <Rectangle.Style>
                                 <Style TargetType="Rectangle">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Settings.Brightness, Converter={StaticResource NegativeConverter}}" Value="True">
+                                        <DataTrigger Binding="{Binding settings.brightness, Converter={StaticResource NegativeConverter}}" Value="True">
                                             <Setter Property="Visibility" Value="Visible"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -73,8 +80,8 @@
                             </Rectangle.Style>
                         </Rectangle>
 
-                        <Rectangle Fill="{Binding Settings.Warmth, Converter={StaticResource WarmthToColorConverter}}" 
-                                Opacity="{Binding Settings.AbsWarmth}" IsHitTestVisible="False"/>
+                        <Rectangle Fill="{Binding settings.warmth, Converter={StaticResource WarmthToColorConverter}}" 
+                                Opacity="{Binding settings.absWarmth}" IsHitTestVisible="False"/>
                     </Grid>
                 </Viewbox>
             </Grid>
@@ -84,19 +91,19 @@
                     <StackPanel Margin="20" DataContext="{Binding SelectedItem, ElementName=ThumbnailList}">
                         <TextBlock Text="СВЕТ И ЭФФЕКТЫ" Foreground="#007ACC" FontWeight="Bold" Margin="0,0,0,20"/>
                         
-                        <CheckBox Content="Черно-белый фильтр" IsChecked="{Binding Settings.IsBW}" Foreground="#AAA" Margin="0,0,0,20"/>
+                        <CheckBox Content="Черно-белый фильтр" IsChecked="{Binding settings.isBW}" Foreground="#AAA" Margin="0,0,0,20"/>
 
                         <TextBlock Text="Размытие" Foreground="#AAA" FontSize="11"/>
-                        <Slider Minimum="0" Maximum="40" Value="{Binding Settings.BlurRadius}" Margin="0,5,0,20"/>
+                        <Slider Minimum="0" Maximum="40" Value="{Binding settings.blurRadius}" Margin="0,5,0,20"/>
 
                         <TextBlock Text="Экспозиция" Foreground="#AAA" FontSize="11"/>
-                        <Slider Minimum="0" Maximum="0.6" Value="{Binding Settings.Exposure}" Margin="0,5,0,20"/>
+                        <Slider Minimum="0" Maximum="0.6" Value="{Binding settings.exposure}" Margin="0,5,0,20"/>
 
                         <TextBlock Text="Яркость" Foreground="#AAA" FontSize="11"/>
-                        <Slider Minimum="-0.7" Maximum="0" Value="{Binding Settings.Brightness}" Margin="0,5,0,20"/>
+                        <Slider Minimum="-0.7" Maximum="0" Value="{Binding settings.brightness}" Margin="0,5,0,20"/>
 
                         <TextBlock Text="Теплота" Foreground="#AAA" FontSize="11"/>
-                        <Slider Minimum="-0.5" Maximum="0.5" Value="{Binding Settings.Warmth}" Margin="0,5,0,20"/>
+                        <Slider Minimum="-0.5" Maximum="0.5" Value="{Binding settings.warmth}" Margin="0,5,0,20"/>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
@@ -112,7 +119,7 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border Margin="5" Padding="2" BorderBrush="#444" BorderThickness="1" Background="#222">
-                            <Image Source="{Binding ImageSource}" Width="120" Height="80" Stretch="UniformToFill"/>
+                            <Image Source="{Binding imageSource}" Width="120" Height="80" Stretch="UniformToFill"/>
                         </Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
