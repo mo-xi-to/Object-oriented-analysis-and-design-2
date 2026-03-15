@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>MyTube</title>
+    <style>
+        :root {
+            --bg-dark: #0f0f0f;
+            --card-bg: #1e1e1e;
+            --text-main: #ffffff;
+            --text-gray: #aaaaaa;
+            --yt-red: #ff0000;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: "Roboto", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            height: 56px;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-dark);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #222;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .logo-icon {
+            background-color: var(--yt-red);
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 8px;
+            position: relative;
+        }
+
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            border-left: 7px solid white;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            left: 12px;
+            top: 5px;
+        }
+
+        .content {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .thumbnail {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 12px;
+            background-color: #333;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 12px;
+        }
+
+        .video-card:hover .thumbnail { border-radius: 4px; }
+
+        .video-title {
+            font-size: 16px;
+            font-weight: 500;
+            display: block;
+            line-height: 1.2;
+        }
+
+        .video-meta {
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-top: 5px;
+            display: block;
+        }
+
+        #player-wrapper {
+            display: none;
+            margin-bottom: 30px;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        #player-content { width: 100%; aspect-ratio: 16/9; }
+
+        .loader-box {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .loader {
+            border: 4px solid #333;
+            border-top: 4px solid var(--yt-red);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .loading-text { color: var(--yt-red); margin-top: 15px; font-weight: bold; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo" onclick="location.reload()">
+            <div class="logo-icon"></div> MyTube
+        </div>
+        <div style="margin-left: auto;">
+            <select id="engine-selector" onchange="switchEngine()" style="background: #222; color: white; border: 1px solid #444; padding: 5px; border-radius: 4px;">
+                <option value="MyTubeProxy.js">РЕЖИМ: С ПАТТЕРНОМ</option>
+                <option value="MyTubeNoPattern.js">РЕЖИМ: БЕЗ ПАТТЕРНА</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="content">
+        <div id="player-wrapper">
+            <div id="player-content"></div>
+            <div id="loader-box" class="loader-box">
+                <div class="loader"></div>
+                <div class="loading-text">ИНИЦИАЛИЗАЦИЯ ТЯЖЕЛОГО ОБЪЕКТА...</div>
+            </div>
+        </div>
+
+        <div class="video-grid">
+            <div class="video-card" onclick="playVideo(0)">
+                <div class="thumbnail" style="background-image: url('https://img.youtube.com/vi/jfKfPfyJRdk/mqdefault.jpg')"></div>
+                <span class="video-title">Lofi Girl - Beats to relax/study to</span>
+                <span class="video-meta">Lofi Girl • 24/7 Stream</span>
+            </div>
+
+            <div class="video-card" onclick="playVideo(1)">
+                <div class="thumbnail" style="background-image: url('https://img.youtube.com/vi/aX45GWFerJc/mqdefault.jpg')"></div>
+                <span class="video-title">Домашний Кранчврап</span>
+                <span class="video-meta">Nick's Kitchen • 829K views</span>
+            </div>
+
+            <div class="video-card" onclick="playVideo(2)">
+                <div class="thumbnail" style="background-image: url('https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg')"></div>
+                <span class="video-title">Never Gonna Give You Up (4K 60FPS)</span>
+                <span class="video-meta">Rick Astley • Legend</span>
+            </div>
+
+            <div class="video-card" onclick="playVideo(3)">
+                <div class="thumbnail" style="background-image: url('https://img.youtube.com/vi/yxSV3DM1Llk/mqdefault.jpg')"></div>
+                <span class="video-title">Битва шефов / Ренат Агзамов VS Константин Ивлев. Новый выпуск</span>
+                <span class="video-meta">Телеканал ПЯТНИЦА • 366K views</span>
+            </div>
+
+            <div class="video-card" onclick="playVideo(4)">
+                <div class="thumbnail" style="background-image: url('https://img.youtube.com/vi/bF1FmYhbph/mqdefault.jpg')"></div>
+                <span class="video-title">Возьми телефон детка TOXI$ - TIKTOK ПОЛНАЯ ВЕРСИЯ</span>
+                <span class="video-meta">beareble • 2M views</span>
+            </div>
+
+            <div class="video-card" onclick="playVideo(5)">
+                <div class="thumbnail" style="background-image: url('https://img.youtube.com/vi/XO310x_bRys/mqdefault.jpg')"></div>
+                <span class="video-title">Кухня | Сезон 1 | Серия 1 - 5</span>
+                <span class="video-meta">Первый развлекательный • 9,6M views</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchEngine() {
+            const engine = document.getElementById('engine-selector').value;
+            localStorage.setItem('yt_engine', engine);
+            location.reload();
+        }
+
+        const savedEngine = localStorage.getItem('yt_engine') || 'MyTubeProxy.js';
+        document.getElementById('engine-selector').value = savedEngine;
+        
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = savedEngine;
+        document.body.appendChild(script);
+        
+        function playVideo(index) {
+            if (typeof Module !== 'undefined' && Module._selectVideo) {
+                document.getElementById('player-wrapper').style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                Module._selectVideo(index);
+            } else {
+                alert("C++ движок еще загружается...");
+            }
+        }
+
+        window.showLoading = function() {
+            document.getElementById('player-content').innerHTML = '';
+            document.getElementById('loader-box').style.display = 'flex';
+        };
+
+        window.renderIframe = function(id) {
+            document.getElementById('loader-box').style.display = 'none';
+            const container = document.getElementById('player-content');
+            container.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${id}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+        };
+    </script>
+</body>
+</html>
