@@ -46,7 +46,7 @@ class ReportExporter(ABC):
     def _format_headers(self, headers): pass
 
     @abstractmethod
-    def _format_row(self, row_values): pass
+    def _format_row(self, row): pass
 
     @abstractmethod
     def _end_document(self, total_price): pass
