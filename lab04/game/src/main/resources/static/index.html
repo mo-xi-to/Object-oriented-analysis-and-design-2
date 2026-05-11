@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Лабораторная работа №4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Cormorant+Garamond:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #c9a243; --bg: #0d0b12; --panel: #1a161f; }
+        body { margin: 0; background: var(--bg); color: #d4c4a8; font-family: 'Cormorant Garamond', serif; overflow: hidden; user-select: none; }
+        h3 { font-family: 'Cinzel', serif; color: var(--gold); text-align: center; margin: 5px 0; border-bottom: 1px solid #3d2b3d; padding-bottom: 5px; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 40px; background: #000; border-bottom: 2px solid var(--gold); height: 50px; }
+        .money { color: var(--gold); font-size: 24px; font-weight: bold; }
+
+        .mode-toggle { background: #2c1e36; border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; cursor: pointer; font-family: 'Cinzel'; font-size: 10px; border-radius: 4px; }
+        .mode-pattern { border-color: #2ecc71; color: #2ecc71; }
+        .mode-no-pattern { border-color: #e74c3c; color: #e74c3c; }
+
+        .layout { display: flex; height: calc(100vh - 72px); padding: 15px; gap: 15px; box-sizing: border-box; }
+        .side-column { width: 25%; display: flex; flex-direction: column; gap: 15px; }
+        .center-column { flex: 1; display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.02); border-radius: 8px; padding: 10px; }
+
+        .panel { background: var(--panel); border: 1px solid #3d2b3d; border-radius: 4px; padding: 15px; box-shadow: 0 10px 30px #000; overflow-y: auto; }
+        .recipe-item { font-size: 14px; margin-bottom: 10px; border-bottom: 1px dashed #444; padding-bottom: 5px; color: #666; }
+        .unlocked { color: var(--gold); }
+
+        .shelf { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .item { 
+            width: 60px; height: 60px; background: #231a26; border: 1px solid var(--gold); 
+            border-radius: 4px; cursor: grab; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; font-size: 22px; transition: 0.2s; 
+        }
+        .item:hover { transform: scale(1.05); background: #3d2b3d; box-shadow: 0 0 10px var(--gold); }
+        .item small { font-size: 9px; color: #aaa; margin-top: 2px; text-align: center; line-height: 1; }
+
+        /* Порошки */
+        .p-herb { box-shadow: inset 0 0 15px #2ecc71; border-color: #2ecc71; color: #2ecc71; }
+        .p-mush { box-shadow: inset 0 0 15px #e74c3c; border-color: #e74c3c; color: #e74c3c; }
+        .p-moss { box-shadow: inset 0 0 15px #bdc3c7; border-color: #bdc3c7; color: #bdc3c7; }
+        .p-feather { box-shadow: inset 0 0 15px #3498db; border-color: #3498db; color: #3498db; }
+        .p-crystal { box-shadow: inset 0 0 15px #9b59b6; border-color: #9b59b6; color: #9b59b6; }
+
+        /* Центр */
+        .scroll { background: #e8dcc4; color: #2e1c0c; padding: 15px 25px; border: 2px solid #8b5a2b; font-size: 18px; font-style: italic; text-align: center; width: 90%; margin-bottom: 20px; min-height: 50px; border-radius: 4px; }
+
+        .workspace { display: flex; gap: 40px; justify-content: center; align-items: flex-end; width: 100%; margin-bottom: 20px; }
+        
+        .mortar-area { width: 200px; height: 140px; background: #333; border-radius: 10px 10px 100px 100px; border: 6px solid #1a1a1a; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; }
+        .pestle { width: 14px; height: 80px; background: #555; position: absolute; top: -30px; transition: 0.1s; z-index: 10; pointer-events: none; border-radius: 4px; }
+        
+        .cauldron { width: 240px; height: 190px; background: #1a1a1a; border-radius: 30px 30px 120px 120px; border: 8px solid #000; position: relative; overflow: hidden; box-shadow: inset 0 -15px 40px #000; }
+        .liquid { position: absolute; bottom: 0; width: 100%; height: 0%; transition: 1s; z-index: 1; }
+        .floating { position: absolute; z-index: 2; animation: swim 6s infinite ease-in-out alternate; filter: drop-shadow(0 0 5px currentColor); }
+        @keyframes swim { 0% { transform: translate(-5px, 0); } 100% { transform: translate(5px, 10px); } }
+
+        .grind-progress-container { width: 180px; height: 6px; background: #111; border: 1px solid var(--gold); margin: 8px auto; border-radius: 3px; overflow: hidden; }
+        
+        .brew-zone { width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .temp-bar { width: 400px; height: 18px; background: #111; border: 2px solid var(--gold); border-radius: 9px; position: relative; overflow: visible; margin: 20px 0; }
+        .temp-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #3498db, #2ecc71, #f1c40f, #e74c3c); transition: width 0.1s; border-radius: 7px; }
+        .mark-label { position: absolute; top: -20px; font-size: 10px; color: var(--gold); transform: translateX(-50%); white-space: nowrap; font-family: 'Cinzel'; }
+
+        .btn-group { display: flex; gap: 15px; margin-top: 5px; }
+        .brew-btn { padding: 10px 30px; font-family: 'Cinzel'; background: #421a1a; color: #ff4d4d; border: 2px solid #ff4d4d; cursor: pointer; font-weight: bold; border-radius: 4px; }
+        .brew-btn:active { background: #ff4d4d; color: #000; }
+        .serve-btn { padding: 10px 30px; background: none; border: 1px solid var(--gold); color: var(--gold); cursor: pointer; font-family: 'Cinzel'; border-radius: 4px; }
+        .serve-btn:hover { background: var(--gold); color: #000; }
+    </style>
+</head>
+<body ondragover="event.preventDefault()">
+
+    <div class="header">
+        <div>Алхимия</div>
+        <button id="modeBtn" class="mode-toggle" onclick="toggleMode()">Режим: загрузка...</button>
+        <div class="money">Золото: <span id="money">0</span></div>
+    </div>
+
+    <div class="layout">
+        <div class="side-column">
+            <div class="panel" style="height: 100%">
+                <h3>Рецепты</h3>
+                <div id="book"></div>
+            </div>
+        </div>
+
+        <div class="center-column">
+            <div class="scroll" id="riddle">...</div>
+            
+            <div class="workspace">
+                <div style="text-align:center">
+                    <div class="mortar-area" ondrop="dropToMortar(event)" ondragover="event.preventDefault()" onclick="doGrind()">
+                        <div class="pestle" id="pestle"></div>
+                        <div id="mortar-item" style="font-size:45px;"></div>
+                        <div id="mortar-label" style="position:absolute; bottom:5px; font-size:11px; color:var(--gold)"></div>
+                    </div>
+                    <div class="grind-progress-container">
+                        <div id="grind-fill" style="height:100%; width:0%; background:var(--gold)"></div>
+                    </div>
+                    <small style="font-family:'Cinzel'; font-size:10px;">Растереть</small>
+                </div>
+
+                <div style="text-align:center">
+                    <div class="cauldron" id="cauldron" ondrop="dropToCauldron(event)" ondragover="event.preventDefault()">
+                        <div id="liquid" class="liquid"></div>
+                    </div>
+                    <small style="font-family:'Cinzel'; font-size:10px; margin-top:14px; display:block;">Котёл</small>
+                </div>
+            </div>
+
+            <div class="brew-zone">
+                <div class="temp-bar">
+                    <div style="position:absolute; left: 20%; width:1px; height:100%; background:rgba(255,255,255,0.3);"><span class="mark-label">Слабая</span></div>
+                    <div style="position:absolute; left: 50%; width:1px; height:100%; background:rgba(255,255,255,0.3);"><span class="mark-label">Средняя</span></div>
+                    <div style="position:absolute; left: 85%; width:1px; height:100%; background:rgba(255,255,255,0.3);"><span class="mark-label">Сильная</span></div>
+                    <div id="temp-fill" class="temp-fill"></div>
+                </div>
+                <div class="btn-group">
+                    <button class="brew-btn" onmousedown="startBrew()" onmouseup="stopBrew()" onmouseleave="stopBrew()">🔥 Разжечь огонь</button>
+                    <button class="serve-btn" onclick="serve()">Сдать зелье</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-column">
+            <div class="panel">
+                <h3>Основы</h3>
+                <div class="shelf">
+                    <div class="item" draggable="true" ondragstart="drag(event, 'WATER', 'base')">💧<small>Вода</small></div>
+                    <div class="item" draggable="true" ondragstart="drag(event, 'OIL', 'base')">🛢️<small>Масло</small></div>
+                    <div class="item" draggable="true" ondragstart="drag(event, 'ACID', 'base')">🧪<small>Кисл</small></div>
+                    <div class="item" draggable="true" ondragstart="drag(event, 'FOG', 'base')">🌫️<small>Туман</small></div>
+                    <div class="item" draggable="true" ondragstart="drag(event, 'SMOKE', 'base')">💨<small>Дым</small></div>
+                </div>
+            </div>
+            <div class="panel">
+                <h3>Сырьё (5💰)</h3>
+                <div class="shelf">
+                    <div class="item" draggable="true" ondragstart="drag(event, 'herb', '🌿')">🌿<small>Трава</small></div>
+                    <div class="item" draggable="true" ondragstart="drag(event, 'mush', '🍄')">🍄<small>Гриб</small></div>
+                    <div class="item" draggable="true" ondragstart="drag(event, 'moss', '👻')">👻<small>Мох</small></div>
+                    <div class="item" draggable="true" ondragstart="drag(event, 'feather', '🪶')">🪶<small>Перо</small></div>
+                    <div class="item" draggable="true" ondragstart="drag(event, 'crystal', '💎')">💎<small>Кристалл</small></div>
+                </div>
+            </div>
+            <div class="panel" style="flex:1">
+                <h3>Готовые порошки</h3>
+                <div id="ready-shelf" class="shelf"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STAGES = ["Целый", "Смятый", "Крошка", "Порошок"];
+        const ICONS = { 'herb': ["🌿", "🌱", "🥗", "✨"], 'mush': ["🍄", "🍄", "🪵", "🔥"], 'moss': ["👻", "🌫️", "☁️", "💨"], 'feather': ["🪶", "🪶", "☄️", "🌪️"], 'crystal': ["💎", "💎", "🔸", "✨"] };
+        const CLASSES = { 'herb': 'p-herb', 'mush': 'p-mush', 'moss': 'p-moss', 'feather': 'p-feather', 'crystal': 'p-crystal' };
+        const NAMES = { 'herb': 'Трава', 'mush': 'Гриб', 'moss': 'Мох', 'feather': 'Перо', 'crystal': 'Кристалл' };
+        
+        const fullRecipes = [
+            { name: "Эликсир света", desc: "Вода, 1 перо (порошок), 2 кристалла (смятый). Слабая варка." },
+            { name: "Яд мертвецов", desc: "Кислота, 3 гриба (порошок), 2 мха (порошок). Сильная варка." },
+            { name: "Облачный туман", desc: "Туман, 1 трава (смятый), 3 пера (крошка). Средняя варка." },
+            { name: "Дыхание феникса", desc: "Дым, 3 травы (порошок), 2 кристалла (крошка). Сильная варка." },
+            { name: "Ледяная ярость", desc: "Вода, 2 мха (крошка), 3 кристалла (порошок). Слабая варка." },
+            { name: "Слезы сирены", desc: "Масло, 2 травы, 2 гриба, 2 мха (все Смятые). Средняя варка." }
+        ];
+
+        let potion = { base: 'NONE', herbs:0, gHerb:0, mushrooms:0, gMush:0, moss:0, gMoss:0, feathers:0, gFeather:0, crystals:0, gCrystal:0, brewTime:0 };
+        let currentDrag = null, inMortar = null, grindClicks = 0, brewInterval = null;
+
+        async function toggleMode() {
+            let res = await fetch('/api/toggle-mode', { method: 'POST' });
+            let data = await res.json();
+            updateModeUI(data.usePattern);
+        }
+
+        function updateModeUI(isPattern) {
+            let btn = document.getElementById('modeBtn');
+            if (isPattern) { btn.innerText = "Режим: с паттерном"; btn.className = "mode-toggle mode-pattern"; }
+            else { btn.innerText = "Режим: без паттерна"; btn.className = "mode-toggle mode-no-pattern"; }
+        }
+
+        async function updateStatus() {
+            try {
+                let res = await fetch('/api/status');
+                let data = await res.json();
+                document.getElementById('money').innerText = data.money !== undefined ? data.money : "0";
+                document.getElementById('riddle').innerText = data.riddle || "Клиентов пока нет...";
+                updateModeUI(data.usePattern);
+
+                let bookDiv = document.getElementById('book');
+                bookDiv.innerHTML = "";
+                let unlockedList = data.unlocked ? data.unlocked.split(',').map(s => s.trim()) : [];
+
+                fullRecipes.forEach(r => {
+                    let div = document.createElement('div'); div.className = "recipe-item";
+                    if (unlockedList.includes(r.name)) { div.classList.add("unlocked"); div.innerHTML = `<b>${r.name}</b><br><small>${r.desc}</small>`; }
+                    else { div.innerHTML = `<b>???</b><br><span style="filter:blur(5px)">${r.desc}</span>`; }
+                    bookDiv.appendChild(div);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        function drag(e, type, icon) { currentDrag = { type, icon }; }
+        
+        async function dropToMortar(e) {
+            if (!currentDrag || currentDrag.icon === 'base' || inMortar) return;
+            await fetch('/api/buy-item', { method: 'POST' });
+            inMortar = currentDrag.type; grindClicks = 0; updateMortarVisual(); updateStatus();
+        }
+
+        function doGrind() {
+            if (!inMortar) return;
+            grindClicks++; document.getElementById('pestle').style.transform = `translateY(${grindClicks % 2 * 10}px)`;
+            document.getElementById('grind-fill').style.width = (grindClicks / 15 * 100) + '%';
+            updateMortarVisual();
+            if (grindClicks >= 15) { createPowder(inMortar, 3); inMortar = null; updateMortarVisual(); }
+        }
+
+        function updateMortarVisual() {
+            let itemDiv = document.getElementById('mortar-item'); let labelDiv = document.getElementById('mortar-label');
+            if (!inMortar) { itemDiv.innerText = ""; labelDiv.innerText = ""; document.getElementById('grind-fill').style.width = '0%'; return; }
+            let stage = Math.min(3, Math.floor(grindClicks / 5));
+            itemDiv.innerText = ICONS[inMortar][stage];
+            labelDiv.innerHTML = `${STAGES[stage]} <br> <button style="font-size:9px; background:var(--gold); border:none; border-radius:3px; cursor:pointer;" onclick="event.stopPropagation(); createPowder(inMortar, ${stage}); inMortar=null; updateMortarVisual();">Забрать</button>`;
+        }
+
+        function createPowder(type, stage) {
+            let div = document.createElement('div'); 
+            div.className = `item ${CLASSES[type]}`; 
+            div.innerHTML = `${ICONS[type][stage]}<small>${STAGES[stage]} ${NAMES[type]}</small>`;
+            div.draggable = true; 
+            div.ondragstart = (ev) => { currentDrag = { type: type, grind: stage, icon: 'powder' }; };
+            document.getElementById('ready-shelf').appendChild(div);
+        }
+
+        async function dropToCauldron(e) {
+            if (!currentDrag) return;
+            if (currentDrag.icon === 'base') {
+                await fetch('/api/buy-item', { method: 'POST' });
+                potion.base = currentDrag.type;
+                let liq = document.getElementById('liquid'); liq.style.height = '60%';
+                const cols = {WATER:'#3498db', OIL:'#f1c40f', ACID:'#2ecc71', FOG:'#bdc3c7', SMOKE:'#7f8c8d'};
+                liq.style.backgroundColor = cols[currentDrag.type];
+            } else if (currentDrag.icon === 'powder') {
+                let keyCount = currentDrag.type + (currentDrag.type.endsWith('s') ? '' : 's');
+                let keyGrind = 'g' + currentDrag.type.charAt(0).toUpperCase() + currentDrag.type.slice(1);
+                if (keyGrind === 'gmush') keyGrind = 'gMush';
+                potion[keyCount]++; potion[keyGrind] = currentDrag.grind;
+                
+                let f = document.createElement('div'); f.className = 'floating'; 
+                f.innerText = ICONS[currentDrag.type][currentDrag.grind];
+                f.style.color = getComputedStyle(document.querySelector('.' + CLASSES[currentDrag.type])).color;
+                f.style.left = (Math.random() * 60 + 20) + '%'; f.style.bottom = (Math.random() * 40 + 20) + '%';
+                document.getElementById('cauldron').appendChild(f);
+            }
+            updateStatus();
+        }
+
+        function startBrew() { brewInterval = setInterval(() => { if(potion.brewTime < 100){ potion.brewTime++; document.getElementById('temp-fill').style.width = potion.brewTime + '%'; }}, 50); }
+        function stopBrew() { clearInterval(brewInterval); }
+
+        async function serve() {
+            if (potion.base === 'NONE') return alert("Добавьте основу!");
+            let res = await fetch('/api/serve', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(potion) });
+            let result = await res.json();
+            alert(result.feedback);
+            location.reload();
+        }
+        updateStatus();
+    </script>
+</body>
+</html>
