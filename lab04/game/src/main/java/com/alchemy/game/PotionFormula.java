@@ -59,10 +59,10 @@ public final class PotionFormula {
     public int getBrewTime() { return brewTime; }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PotionFormula)) return false;
-        PotionFormula that = (PotionFormula) o;
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof PotionFormula)) return false;
+        PotionFormula that = (PotionFormula) obj;
         return herbs == that.herbs && gHerb == that.gHerb && mushrooms == that.mushrooms && 
             gMush == that.gMush && moss == that.moss && gMoss == that.gMoss && 
             feathers == that.feathers && gFeather == that.gFeather && 
