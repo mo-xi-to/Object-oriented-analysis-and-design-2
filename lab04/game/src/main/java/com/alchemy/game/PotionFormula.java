@@ -13,8 +13,26 @@ public final class PotionFormula {
     private final int brewTime;
 
     public PotionFormula(Base base, int herbs, int gHerb, int mushrooms, int gMush, 
-                        int moss, int gMoss, int feathers, int gFeather, 
-                        int crystals, int gCrystal, int brewTime) {
+                    int moss, int gMoss, int feathers, int gFeather, 
+                    int crystals, int gCrystal, int brewTime) {
+
+        if (base == null || base == Base.NONE) {
+            throw new IllegalArgumentException("Зелье не может быть без основы!");
+        }
+
+        if (herbs < 0 || mushrooms < 0 || moss < 0 || feathers < 0 || crystals < 0) {
+            throw new IllegalArgumentException("Количество ингредиентов не может быть отрицательным!");
+        }
+
+        if (isInvalidGrind(gHerb) || isInvalidGrind(gMush) || isInvalidGrind(gMoss) || 
+            isInvalidGrind(gFeather) || isInvalidGrind(gCrystal)) {
+            throw new IllegalArgumentException("Степень помола должна быть от 0 до 3!");
+        }
+
+        if (brewTime < 0 || brewTime > 100) {
+            throw new IllegalArgumentException("Время варки должно быть от 0 до 100!");
+        }
+
         this.base = base;
         this.herbs = herbs; this.gHerb = gHerb;
         this.mushrooms = mushrooms; this.gMush = gMush;
@@ -22,6 +40,10 @@ public final class PotionFormula {
         this.feathers = feathers; this.gFeather = gFeather;
         this.crystals = crystals; this.gCrystal = gCrystal;
         this.brewTime = brewTime;
+    }
+
+    private boolean isInvalidGrind(int value) {
+        return value < 0 || value > 3;
     }
 
     public int calculateCompositionAccuracy(PotionFormula ideal) {
